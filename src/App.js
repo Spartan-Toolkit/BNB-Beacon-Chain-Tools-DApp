@@ -1,12 +1,16 @@
+import "bootstrap/dist/css/bootstrap.min.css";
+
+import Body from "./sections/Body";
+import Footer from "./sections/Footer";
+import Header from "./sections/Header";
+
 function App() {
   return (
-    <div className='App'>
-      <header className='App-header'>
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-      </header>
-    </div>
+    <>
+      <Header />
+      <Body />
+      <Footer />
+    </>
   );
 }
 

@@ -1,0 +1,9 @@
+.footer {
+  height: 25px;
+  margin: 0;
+  z-index: 1200;
+  bottom: 0;
+  position: fixed;
+  width: 100vw;
+  align-content: center;
+}
