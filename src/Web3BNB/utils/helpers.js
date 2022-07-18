@@ -1,27 +1,14 @@
-import { chainIds } from "./const";
-
-export const findChainId = (chainIdDescriptor) => {
-  const filtered = chainIds.filter(
-    (x) =>
-      x.name === chainIdDescriptor ||
-      (x.id === chainIdDescriptor) | (x.id2 === chainIdDescriptor)
-  );
-  if (filtered.length === 1) {
-    return filtered[0];
-  }
-  return false;
-};
+import { getNetwork } from "./network";
 
 // Filter the Binance Wallet window.BinanceChain.requestAddresses() to an array of relevant addresses
-export const filterAddressesBW = (chainIdDescriptor, addressesArray) => {
-  const chainId = findChainId(chainIdDescriptor);
-  if (!chainId) {
-    return [];
-  }
+export const filterAddressesBW = (chainIdDescriptor, addrArray) => {
+  const network = getNetwork(chainIdDescriptor);
   let addresses = [];
-  for (let i = 0; i < addressesArray.length; i += 1) {
-    if (addressesArray[i].lastIndexOf(chainId.prefix, 0) === 0) {
-      addresses.push(addressesArray[i]);
+  if (network) {
+    for (let i = 0; i < addrArray.length; i += 1) {
+      if (addrArray[i].lastIndexOf(network.prefix, 0) === 0) {
+        addresses.push(addrArray[i]);
+      }
     }
   }
   return addresses;
@@ -30,7 +17,7 @@ export const filterAddressesBW = (chainIdDescriptor, addressesArray) => {
 export const getAddressesBW = async () => {
   let addresses = await window.BinanceChain.requestAddresses();
   addresses = filterAddressesBW(window.BinanceChain.chainId, addresses);
-  return addresses
+  return addresses;
 };
 
 // Filter the Binance Wallet window.BinanceChain.requestAddresses() to an array of relevant addresses
@@ -58,11 +45,11 @@ export const getAccountIdFromAddr = (accountsObj, address) => {
  * @param {string} longString
  * @returns {string} shortString
  */
- export const formatShortString = (longString) => {
-  const addr = longString || '0x000000000000000'
+export const formatShortString = (longString) => {
+  const addr = longString || "0x000000000000000";
   const shortString = `${addr.substring(0, 5)}...${addr?.substring(
     addr.length - 3,
-    addr.length,
-  )}`
-  return shortString
-}
+    addr.length
+  )}`;
+  return shortString;
+};

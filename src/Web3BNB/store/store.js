@@ -2,19 +2,19 @@
 
 import { Provider, useSelector } from "react-redux";
 import { configureStore } from "@reduxjs/toolkit";
-import beaconReducer from "./beacon";
+import bbcReducer from "./bbc";
 // import smartReducer from "./smart";
 
 const store = configureStore({
-  reducer: { 
-    beacon: beaconReducer,
-    // smart: smartReducer 
+  reducer: {
+    bbc: bbcReducer,
+    // smart: smartReducer
   },
 });
 
-export const useBeacon = () => useSelector((state) => state.beacon)
-export const useSmart = () => useSelector((state) => state.smart)
+export const useBbc = () => useSelector((state) => state.bbc);
+export const useSmart = () => useSelector((state) => state.smart);
 
-export const Web3BNBProvider = ({ children }) => {
+export const Web3BNBStore = ({ children }) => {
   return <Provider store={store}>{children}</Provider>;
 };

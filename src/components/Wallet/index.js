@@ -5,50 +5,34 @@ import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Modal from "react-bootstrap/Modal";
 import {
-  clearTheWallet,
-  connectBinanceWallet,
-  selectBinanceWallet,
-  useBeacon,
+  bbcUpdateChainId,
+  bbcUpdateWalletType,
+  bbcUpdateAddress,
+  bbcClearWallet,
+  useBbc,
 } from "../../Web3BNB";
-import { chainIds } from "../../Web3BNB/const";
-import { formatShortString, getAddressesBW } from "../../Web3BNB/helpers";
+import { networks } from "../../Web3BNB/utils/network";
+import { formatShortString } from "../../Web3BNB/utils/helpers";
 
 const Wallet = () => {
   const dispatch = useDispatch();
-  const beacon = useBeacon();
+  const { chainId, walletType, addrArray, address } = useBbc();
 
   const [showModal, setshowModal] = useState(false);
-  const [network, setnetwork] = useState(null);
-  const [addresses, setaddresses] = useState([]);
-  const [address, setaddress] = useState(null);
+  const [addrState, setaddrState] = useState(address ?? false);
 
   const handleClose = () => setshowModal(false);
   const handleShow = () => setshowModal(true);
 
   useEffect(() => {
-    const getAddr = async () => {
-      if (beacon.walletType === "BW") {
-        const _addresses = await getAddressesBW();
-        setaddresses(_addresses);
-      }
-    };
-    getAddr();
-    return () => {
-      setaddresses([]);
-      setaddress(null);
-    };
-  }, [beacon.walletType]);
-
-  useEffect(() => {
-    setaddresses([]);
-    setaddress(null);
-    dispatch(clearTheWallet());
-  }, [dispatch, network]);
+    setaddrState(false);
+    dispatch(bbcClearWallet());
+  }, [dispatch, chainId]);
 
   return (
     <>
       <Button size='sm' variant='primary' onClick={handleShow}>
-        {beacon.address ? formatShortString(beacon.address) : "Connect Wallet"}
+        {address ? formatShortString(address) : "Connect Wallet"}
       </Button>
 
       <Modal show={showModal} onHide={handleClose}>
@@ -57,64 +41,64 @@ const Wallet = () => {
         </Modal.Header>
         <Modal.Body>
           <h5>Select Network:</h5>
-          {chainIds.map((x) => (
+          {networks.map((x) => (
             <Button
               key={x.id}
-              variant={network === x.id ? "primary" : "secondary"}
-              onClick={() => setnetwork(x.id)}
+              variant={chainId === x.id ? "primary" : "secondary"}
+              onClick={() => dispatch(bbcUpdateChainId(x.id))}
             >
               {x.name}
             </Button>
           ))}
-          {!beacon.walletType && (
+          {!walletType && (
             <>
               <h5>Select Wallet Type:</h5>
               <Button
                 variant='secondary'
-                onClick={() => dispatch(connectBinanceWallet(network))}
-                disabled={!network}
+                onClick={() => dispatch(bbcUpdateWalletType("BW"))}
+                disabled={!chainId}
               >
                 Connect to Binance Wallet
               </Button>
             </>
           )}
-          {beacon.walletType === "BW" && (
+          {walletType === "BW" && (
             <>
               <h5>Select Binance Wallet Address:</h5>
               <Form>
-                {addresses.map((x) => (
+                {addrArray.map((x) => (
                   <Form.Check
                     key={x}
                     type='radio'
                     name='group1'
                     id={x}
                     label={x}
-                    onClick={() => setaddress(x)}
+                    onClick={() => setaddrState(x)}
+                    // TODO: ADD CONDITIONAL INITIAL/ON-LOAD VALUE BASED ON REDUX STATE
                   />
                 ))}
               </Form>
               <h5>Set Wallet Address:</h5>
               <Button
-                onClick={() => dispatch(selectBinanceWallet(address))}
-                disabled={!address}
+                onClick={() => dispatch(bbcUpdateAddress(addrState))}
+                disabled={!addrState}
               >
                 Set Address
               </Button>
             </>
           )}
           <h5>Currently Selected Address:</h5>
-          {beacon.address}
+          {address}
         </Modal.Body>
         <Modal.Footer>
           <Button
             variant='secondary'
             onClick={() => {
-              dispatch(clearTheWallet());
-              setaddress(null);
-              setnetwork(null);
+              dispatch(bbcClearWallet());
+              setaddrState(null);
             }}
           >
-            {!beacon.walletType ? "Clear" : "Disconnect"} Wallet
+            {!walletType ? "Clear" : "Disconnect"} Wallet
           </Button>
           <Button variant='secondary' onClick={handleClose}>
             Close

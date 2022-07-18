@@ -1,3 +1,54 @@
+import { getPublicKey } from "@binance-chain/javascript-sdk/lib/crypto";
+import { isHex, str2hexstring } from "@binance-chain/javascript-sdk/lib/utils";
+
+export const getSigningDelegateBW =
+  (preSignCb, postSignCb, errCb) => async (tx, signMsg) => {
+    try {
+      preSignCb && preSignCb(tx);
+      console.log(window.BinanceChain);
+      const { pubKey, signature } = await window.BinanceChain.bbcSignTx({
+        tx,
+        signMsg,
+      });
+
+      console.log(pubKey, signature);
+
+      postSignCb && postSignCb();
+      if (pubKey && signature) {
+        const pubKey1 = crypto.getPublicKey(pubKey);
+        return tx.addSignature(pubKey1, Buffer.from(signature, "hex"));
+      }
+    } catch (err) {
+      errCb && errCb(err);
+      throw new Error(err.error);
+    }
+  };
+
+export const setBinanceWalletSigningDelegate = (bncClient, walletAddr) => {
+  // called via ---> this._signingDelegate.call(this, tx, stdSignMsg)
+  bncClient.setSigningDelegate(async (tx, signMsg) => {
+    let signedMsg = null;
+    try {
+      console.log("tx", tx);
+      console.log("stdSignMsg", signMsg);
+      signedMsg = await window.BinanceChain.bbcSignTx(tx, signMsg);
+      console.log("signedMsg", signedMsg);
+    } catch (err) {
+      console.log("Binance Wallet signing error", err);
+    }
+    if (signedMsg) {
+      console.log(signedMsg.publicKey, signedMsg.signature);
+      console.log(str2hexstring(signedMsg.publicKey));
+      console.log(signedMsg.publicKey.split("0x")[1]);
+      const pubKey = getPublicKey(signedMsg.publicKey.split("0x")[1]);
+      console.log("didnt get here though?");
+      console.log(pubKey);
+      return tx.addSignature(pubKey, signedMsg.signature);
+    }
+    return tx;
+  }); // set Binance Wallet as the signing delegate
+};
+
 // const BASENUMBER = Math.pow(10, 8)
 
 // export const api = {
