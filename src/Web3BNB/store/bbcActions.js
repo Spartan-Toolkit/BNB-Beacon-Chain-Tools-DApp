@@ -3,6 +3,7 @@ import {
   updateError,
   updateChainId,
   updateWalletType,
+  updateAddrArray,
   updateAddress,
   clearWallet,
 } from "./bbc";
@@ -30,17 +31,17 @@ export const bbcUpdateWalletType =
     if (getNetwork(chainId)) {
       let shouldContinue = true;
       try {
-        // TODO: RUN LOGIC PER WALLET TO DERIVE LIST OF ADDRESSES AFTER UNLOCKING
-        // TODO: BINANCEWALLET HAS A COMPLEX OBJECT & INCLUDES BSC ADDRESSES ETC SO WILL REQUIRE PARSING
-        // TODO: WALLETCONNECT WILL NEED CHECKING BUT I SUSPECT IT WILL LIST ALL DERIVED COMPATIBLE WALLETS
-        // TODO: LEDGER WILL REQUIRE SOME INTERACTION FROM THE USER AND PAGINATION (DERIVE 10 AT A TIME?) AS IT IS AGNOSTIC
-        // TODO (LEDGER CONT.): TO WHETHER USER HAS INTERACVTED/DERIVED THE WALLET, SHOWING A BNB BALANCE WILL HELP!
         if (walletType === "BW") {
-          updateBW(network, dispatch, updateError);
+          shouldContinue = await updateBW(
+            network,
+            dispatch,
+            updateError,
+            updateAddrArray
+          );
         } else if (walletType === "WC") {
-          updateWC();
+          shouldContinue = await updateWC();
         } else if (walletType === "LEDGER") {
-          updateLedger();
+          shouldContinue = await updateLedger();
         } else {
           dispatch(updateError("Invalid wallet type"));
           return;
@@ -57,7 +58,7 @@ export const bbcUpdateWalletType =
 /** Update Selected Wallet */
 export const bbcUpdateAddress = (walletAddr) => async (dispatch, getState) => {
   try {
-    // Check old code below and pad this out
+    console.log('TODO: Trigger prompt for user to change address in BW, not required for TW or Ledger');
     dispatch(updateAddress(walletAddr));
   } catch (error) {
     dispatch(updateError(error.reason));
@@ -108,15 +109,6 @@ export const bbcClearWallet = (walletAddr) => async (dispatch, getState) => {
 //       dispatch(updateError(error.reason));
 //     }
 //   };
-
-// /** Clear wallet */
-// export const clearTheWallet = () => async (dispatch) => {
-//   try {
-//     dispatch(clearWallet());
-//   } catch (error) {
-//     dispatch(updateError(error.reason));
-//   }
-// };
 
 // /**
 //  * Send a multisend/batch tsf with Binance Wallet as the signing delegate

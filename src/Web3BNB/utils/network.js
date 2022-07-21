@@ -16,7 +16,7 @@ export const networks = [
     idLedger: "", // TODO: Confirm Ledger's expected value/app
     name: "Binance Chain Testnet", // Label used in front-end
     prefix: "tbnb", // Prefix used for the network's wallet addresses
-    rpcs: ["https://testnet-dex.binance.org"], // URLs or RPCs for calling and broadcasting
+    rpcs: ["https://testnet-dex.binance.org/"], // URLs or RPCs for calling and broadcasting
     explorer: "https://testnet-explorer.binance.org", // URL for the network's explorer
   },
   {

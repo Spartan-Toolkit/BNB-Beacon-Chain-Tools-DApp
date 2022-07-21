@@ -1,21 +1,23 @@
-import React, { createContext, useEffect, useState } from "react";
+import React, { createContext, useCallback, useEffect, useState } from "react";
 import { BncClient } from "@binance-chain/javascript-sdk";
 import { getNetwork } from "../utils/network";
 import { useBbc } from "..";
+import { getSigningDelegateBW } from "./delegates/BinanceWallet";
 
-export const Context = createContext();
+export const BnbClientContext = createContext();
 
 export const BnbClientProvider = ({ children }) => {
-  const { chainId, address } = useBbc();
+  const { chainId, walletType, address } = useBbc();
 
   const [client, setclient] = useState(undefined);
 
-  useEffect(() => {
+  const setupClient = useCallback(() => {
     if (["bbc-mainnet", "bbc-testnet"].includes(chainId)) {
       const _client = new BncClient(getNetwork(chainId).rpcs[0]);
       _client.initChain();
       _client.chooseNetwork(chainId.split("-")[1]);
       setclient(_client);
+      console.log("client updated", _client);
     } else {
       // TODO: Add non-beacon handling (conditionally inject this provider???)
       console.log(
@@ -25,19 +27,71 @@ export const BnbClientProvider = ({ children }) => {
     }
   }, [chainId]);
 
+  const setupSigningDelegate = useCallback(() => {
+    const preSignCb = () => {
+      console.log(
+        "TODO: update the frontend with a parsed txn to ensure its 100% correct (client might have received something different to what the UI sent)",
+        client
+      );
+      // **IMPORTANT** Update the front-end with a parsed version of the pre-signed txn to ensure what is being handed
+      // to the client matches what the UI sent. (This will resist bugs such as the one listed below in postSignCb && errCb)
+    };
+    const postSignCb = () => {
+      console.log("TODO: post-sign callback", client);
+      // ***IMPORTANT*** BncClient or BinanceWallet has a bug with multisend that exponentially increases the outputs
+      // on each successive repeat of the same txn. Wiping the client seems to be the only way of avoiding this
+      setupClient();
+      setupSigningDelegate();
+    };
+    const errCb = (err) => {
+      console.log("TODO: error callback", err);
+      // ***IMPORTANT*** BncClient or BinanceWallet has a bug with multisend that exponentially increases the outputs
+      // on each successive repeat of the same txn. Wiping the client seems to be the only way of avoiding this
+      setupClient();
+      setupSigningDelegate();
+    };
+    if (walletType === "BW") {
+      client.setSigningDelegate(
+        getSigningDelegateBW(preSignCb, postSignCb, errCb)
+      );
+      console.log("Signing delegate set to BW:", client);
+    }
+    if (walletType === "LEDGER") {
+      // ***IMPORTANT*** See above inside postSignCb && errCb. Dont use these callbacks when testing to find out if the
+      // bug is a BncClient issue or a BinanceWallet caching issue. Should help narrow down prior to locating specific issue
+    }
+  }, [client, setupClient, walletType]);
+
+  useEffect(() => {
+    setupClient();
+  }, [chainId, setupClient]);
+
+  useEffect(() => {
+    setupSigningDelegate();
+  }, [setupSigningDelegate, walletType]);
+
   // TODO: Add a useEffect with dep '~bbc.address' to set/update the client if wallet address changes
   useEffect(() => {
-    // If user selects a new wallet address, clear the 'account_number'
-    // We dont need to set it here (just clear it) because it gets set during the txn building / signing functions
-    if (client?.account_number) {
-      console.log(
-        "User changed selected account in DApp, clearing account_number"
-      );
+    const getAccount = async () => {
+      let test = await client.getAccount(address);
+      test = test.result.account_number;
+      console.log(test);
+      return test;
+    };
+    if (client && address) {
+      client.address = address;
+      client.account_number = getAccount();
+      console.log("client address change", client);
+    } else if (client) {
+      client.address = null;
       client.account_number = null;
+      console.log("client address cleared", client);
     }
   }, [address, client]);
 
   return (
-    <Context.Provider value={[client, setclient]}>{children}</Context.Provider>
+    <BnbClientContext.Provider value={client}>
+      {children}
+    </BnbClientContext.Provider>
   );
 };

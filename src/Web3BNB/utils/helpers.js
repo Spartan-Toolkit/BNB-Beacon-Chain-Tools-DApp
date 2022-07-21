@@ -20,7 +20,7 @@ export const getAddressesBW = async () => {
   return addresses;
 };
 
-// Filter the Binance Wallet window.BinanceChain.requestAddresses() to an array of relevant addresses
+// Filter the Binance Wallet window.BinanceChain.requestAccounts() to find the ID to hand to the SDK API
 export const getAccountIdFromAddr = (accountsObj, address) => {
   let index = null;
   if (address.lastIndexOf("tbnb", 0) === 0) {

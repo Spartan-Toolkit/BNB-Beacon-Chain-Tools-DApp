@@ -27,6 +27,9 @@ export const bbcSlice = createSlice({
       state.walletType = action.payload;
       window.localStorage.setItem("sptk_walletType", action.payload);
     },
+    updateAddrArray: (state, action) => {
+      state.addrArray = action.payload;
+    },
     updateAddress: (state, action) => {
       state.address = action.payload;
       window.localStorage.setItem("sptk_address", action.payload);
@@ -44,6 +47,7 @@ export const {
   updateError,
   updateChainId,
   updateWalletType,
+  updateAddrArray,
   updateAddress,
   clearWallet,
 } = bbcSlice.actions;
