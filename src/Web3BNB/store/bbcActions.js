@@ -6,6 +6,7 @@ import {
   updateAddrArray,
   updateAddress,
   clearWallet,
+  updateBalances,
 } from "./bbc";
 import { updateBW, updateLedger, updateWC } from "./bbcUtils";
 
@@ -56,9 +57,11 @@ export const bbcUpdateWalletType =
   };
 
 /** Update Selected Wallet */
-export const bbcUpdateAddress = (walletAddr) => async (dispatch, getState) => {
+export const bbcUpdateAddress = (walletAddr) => async (dispatch) => {
   try {
-    console.log('TODO: Trigger prompt for user to change address in BW, not required for TW or Ledger');
+    console.log(
+      "TODO: Trigger prompt for user to change address in BW, not required for TW or Ledger"
+    );
     dispatch(updateAddress(walletAddr));
   } catch (error) {
     dispatch(updateError(error.reason));
@@ -66,7 +69,26 @@ export const bbcUpdateAddress = (walletAddr) => async (dispatch, getState) => {
 };
 
 /** Update Selected Wallet */
-export const bbcClearWallet = (walletAddr) => async (dispatch, getState) => {
+export const bbcUpdateBalances = (balances) => async (dispatch) => {
+  const sortFunc = (a, b) => {
+    if (a.symbol < b.symbol) {
+      return -1;
+    }
+    if (a.symbol > b.symbol) {
+      return 1;
+    }
+    return 0;
+  };
+  try {
+    balances.sort(sortFunc);
+    dispatch(updateBalances(balances));
+  } catch (error) {
+    dispatch(updateError(error.reason));
+  }
+};
+
+/** Update Selected Wallet */
+export const bbcClearWallet = (walletAddr) => async (dispatch) => {
   try {
     // Check old code below and pad this out
     dispatch(clearWallet(walletAddr));
@@ -74,71 +96,3 @@ export const bbcClearWallet = (walletAddr) => async (dispatch, getState) => {
     dispatch(updateError(error.reason));
   }
 };
-
-// ---------------- OLD DELETE BELOW WHEN DONE ----------------
-
-// /** Try connect to Binance Wallet */
-// export const selectBinanceWallet =
-//   (selectedAddress, network) => async (dispatch) => {
-//     try {
-//       // Assign 'accountId'
-//       const accounts = await window.BinanceChain.requestAccounts();
-//       const accountId = getAccountIdFromAddr(accounts, selectedAddress);
-
-//       // Test if accountId === deriving it via BncClient
-//       const bncclient = new BncClient(findChainId(network).rpc);
-//       console.log(
-//         accountId,
-//         (await bncclient.getAccount(selectedAddress)).result
-//       );
-
-//       // Assign connected client object to 'client'
-//       // let client = new BncClient(findChainId(window.BinanceChain.chainId).rpc);
-//       // client.chooseNetwork(window.BinanceChain.chainId);
-//       // client.initChain();
-//       // console.log("connected client:", client);
-
-//       dispatch(
-//         updateWalletSelected({
-//           accountId,
-//           address: selectedAddress,
-//           // client,
-//         })
-//       );
-//     } catch (error) {
-//       dispatch(updateError(error.reason));
-//     }
-//   };
-
-// /**
-//  * Send a multisend/batch tsf with Binance Wallet as the signing delegate
-//  */
-// export const multiSendBW = () => async (dispatch, getState) => {
-//   const { address } = getState().bbc;
-//   if (address) {
-//     try {
-//       let client = new BncClient(findChainId(window.BinanceChain.chainId).rpc); // create default client
-//       client.setSigningDelegate(getSigningDelegateBW()); // set Binance Wallet as the signing delegate
-//       await client.initChain();
-//       console.log(window.BinanceChain.chainId);
-//       client.chooseNetwork(window.BinanceChain.chainId);
-//       const account = (await client.getAccount(address)).result;
-//       console.log("connected client:", client);
-//       const toAddr = account.address;
-//       const testTx = await client
-//         .transfer(account.address, toAddr, 0.00001, "BNB", "Test memo")
-//         .then((response) => {
-//           console.log("Response", response);
-//         })
-//         .catch((error) => {
-//           console.error(error);
-//         });
-
-//       console.log(testTx);
-//       // return this._signingDelegate.call(this, tx, stdSignMsg)
-//       // dispatch(());
-//     } catch (error) {
-//       dispatch(updateError(error.reason));
-//     }
-//   }
-// };

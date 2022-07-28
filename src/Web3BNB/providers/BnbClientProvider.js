@@ -1,13 +1,15 @@
 import React, { createContext, useCallback, useEffect, useState } from "react";
 import { BncClient } from "@binance-chain/javascript-sdk";
 import { getNetwork } from "../utils/network";
-import { useBbc } from "..";
+import { useBbc, bbcUpdateBalances } from "..";
 import { getSigningDelegateBW } from "./delegates/BinanceWallet";
+import { useDispatch } from "react-redux";
 
 export const BnbClientContext = createContext();
 
 export const BnbClientProvider = ({ children }) => {
   const { chainId, walletType, address } = useBbc();
+  const dispatch = useDispatch();
 
   const [client, setclient] = useState(undefined);
 
@@ -55,8 +57,10 @@ export const BnbClientProvider = ({ children }) => {
         getSigningDelegateBW(preSignCb, postSignCb, errCb)
       );
       console.log("Signing delegate set to BW:", client);
-    }
-    if (walletType === "LEDGER") {
+    } else if (walletType === "LEDGER") {
+      // ***IMPORTANT*** See above inside postSignCb && errCb. Dont use these callbacks when testing to find out if the
+      // bug is a BncClient issue or a BinanceWallet caching issue. Should help narrow down prior to locating specific issue
+    } else if (walletType === "WC") {
       // ***IMPORTANT*** See above inside postSignCb && errCb. Dont use these callbacks when testing to find out if the
       // bug is a BncClient issue or a BinanceWallet caching issue. Should help narrow down prior to locating specific issue
     }
@@ -88,6 +92,23 @@ export const BnbClientProvider = ({ children }) => {
       console.log("client address cleared", client);
     }
   }, [address, client]);
+
+  // Loop balances
+  useEffect(() => {
+    const getBalances = async () => {
+      if (client && address) {
+        const balances = await client.getBalance(address);
+        dispatch(bbcUpdateBalances(balances));
+      }
+    };
+    const intervalId = setInterval(() => {
+      if (client && address) {
+        getBalances(); // run on interval
+      }
+    }, 15000);
+    getBalances(); // run on load
+    return () => clearInterval(intervalId);
+  }, [client, dispatch, address]);
 
   return (
     <BnbClientContext.Provider value={client}>

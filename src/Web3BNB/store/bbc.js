@@ -7,6 +7,7 @@ const initialState = {
   walletType: undefined, // ie. "BW" || "MM" || "WC" --- (aka. BinanceWallet, MetaMask, WalletConnect)
   addrArray: undefined, // Array of all addresses derived from selected wallet
   address: undefined, // User's selected wallet address
+  balances: undefined, // User's array of each token with a balance held
 };
 
 const debug = true;
@@ -29,10 +30,15 @@ export const bbcSlice = createSlice({
     },
     updateAddrArray: (state, action) => {
       state.addrArray = action.payload;
+      // No local storage management required
     },
     updateAddress: (state, action) => {
       state.address = action.payload;
       window.localStorage.setItem("sptk_address", action.payload);
+    },
+    updateBalances: (state, action) => {
+      state.balances = action.payload;
+      // No local storage management required
     },
     clearWallet: (state) => {
       state.walletType = undefined;
@@ -49,6 +55,7 @@ export const {
   updateWalletType,
   updateAddrArray,
   updateAddress,
+  updateBalances,
   clearWallet,
 } = bbcSlice.actions;
 

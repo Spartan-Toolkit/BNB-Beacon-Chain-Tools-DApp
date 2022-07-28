@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 
+import Alert from "react-bootstrap/Alert";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import Modal from "react-bootstrap/Modal";
@@ -20,6 +21,7 @@ const Wallet = () => {
 
   const [showModal, setshowModal] = useState(false);
   const [addrState, setaddrState] = useState(address ?? false);
+  const [wrongAddr, setwrongAddr] = useState(false);
 
   const handleClose = () => setshowModal(false);
   const handleShow = () => setshowModal(true);
@@ -28,6 +30,25 @@ const Wallet = () => {
     setaddrState(false);
     dispatch(bbcClearWallet());
   }, [dispatch, chainId]);
+
+  useEffect(() => {
+    const checkAddrBW = async () => {
+      const addrBW = await window.BinanceChain.request({
+        method: "eth_requestAccounts",
+      });
+      if (addrBW[0] !== addrState) {
+        // if false {alert user to open BW and change their selected account to match}
+        setwrongAddr(true);
+      } else {
+        setwrongAddr(false);
+      }
+    };
+    if (addrState && walletType === "BW") {
+      checkAddrBW();
+    } else {
+      setwrongAddr(false);
+    }
+  }, [addrState, walletType, showModal]);
 
   return (
     <>
@@ -81,10 +102,16 @@ const Wallet = () => {
               <h5>Set Wallet Address:</h5>
               <Button
                 onClick={() => dispatch(bbcUpdateAddress(addrState))}
-                disabled={!addrState}
+                disabled={!addrState || wrongAddr}
               >
                 Set Address
               </Button>
+              {wrongAddr && (
+                <Alert variant='warning'>
+                  Please open BinanceWallet extension and change your selected
+                  account/address first
+                </Alert>
+              )}
             </>
           )}
           <h5>Currently Selected Address:</h5>
