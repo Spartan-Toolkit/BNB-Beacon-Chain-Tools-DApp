@@ -81,6 +81,13 @@ const Wallet = () => {
               >
                 Connect to Binance Wallet
               </Button>
+              <Button
+                variant='secondary'
+                onClick={() => dispatch(bbcUpdateWalletType("WC"))}
+                disabled={!chainId || chainId === "bbc-testnet"}
+              >
+                Connect with WalletConnect
+              </Button>
             </>
           )}
           {walletType === "BW" && (
@@ -116,6 +123,9 @@ const Wallet = () => {
           )}
           <h5>Currently Selected Address:</h5>
           {address}
+          {walletType === "WC" &&
+            chainId === "bbc-testnet" &&
+            "Beaconchain Testnet not compatible with WalletConnect"}
         </Modal.Body>
         <Modal.Footer>
           <Button

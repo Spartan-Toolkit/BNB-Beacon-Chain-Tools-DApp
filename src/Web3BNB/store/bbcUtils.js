@@ -28,13 +28,11 @@ export const updateBW = async (
   return true; // return true if no error and safe to proceed
 };
 
-export const updateWC = async (chainId, dispatch, updateError) => {
-  // Check existence of Wallet Connect? (Probably not relevant, but maybe check localStorage for pre-existing instance?)
-  // Check chainID, make sure its compatible with WC
-  // Get Array of Wallets
-  // ie. const addresses = await getAddressesBW();
-  // Update state of addrArray
-  // ie. dispatch(updateAddrArray(addresses));
+export const updateWC = async () => {
+  const lsItem = window.localStorage.getItem("walletconnect");
+  if (lsItem) {
+    window.localStorage.removeItem("walletconnect");
+  }
   return true; // return true if no error and safe to proceed
 };
 

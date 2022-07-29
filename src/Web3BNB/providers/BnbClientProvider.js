@@ -1,15 +1,18 @@
-import React, { createContext, useCallback, useEffect, useState } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { BncClient } from "@binance-chain/javascript-sdk";
 import { getNetwork } from "../utils/network";
 import { useBbc, bbcUpdateBalances } from "..";
 import { getSigningDelegateBW } from "./delegates/BinanceWallet";
 import { useDispatch } from "react-redux";
+import { getSigningDelegateWC } from "./delegates/WalletConnect";
+import { WCClientContext } from "./WalletConnectProvider";
 
 export const BnbClientContext = createContext();
 
 export const BnbClientProvider = ({ children }) => {
   const { chainId, walletType, address } = useBbc();
   const dispatch = useDispatch();
+  const wcClient = useContext(WCClientContext);
 
   const [client, setclient] = useState(undefined);
 
@@ -63,8 +66,12 @@ export const BnbClientProvider = ({ children }) => {
     } else if (walletType === "WC") {
       // ***IMPORTANT*** See above inside postSignCb && errCb. Dont use these callbacks when testing to find out if the
       // bug is a BncClient issue or a BinanceWallet caching issue. Should help narrow down prior to locating specific issue
+      client.setSigningDelegate(
+        getSigningDelegateWC(preSignCb, postSignCb, errCb, wcClient)
+      );
+      console.log("Signing delegate set to BW:", client);
     }
-  }, [client, setupClient, walletType]);
+  }, [client, setupClient, walletType, wcClient]);
 
   useEffect(() => {
     setupClient();
