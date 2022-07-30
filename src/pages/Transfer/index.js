@@ -16,7 +16,7 @@ const Transfer = () => {
   const client = useContext(BnbClientContext);
   const { address, balances, chainId } = useBbc();
 
-  const [refresh, setrefresh] = useState(0);
+  const [, setrefresh] = useState(0);
   const [prefix, setprefix] = useState(null);
 
   const [manualEntry, setmanualEntry] = useState(false);
