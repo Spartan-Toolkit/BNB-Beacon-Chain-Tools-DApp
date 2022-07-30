@@ -50,6 +50,7 @@
     ]
   },
   "resolutions": {
-    "styled-components": "^5"
+    "styled-components": "^5",
+    "autoprefixer": "10.4.5"
   }
 }
