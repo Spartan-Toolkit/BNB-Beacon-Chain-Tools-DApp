@@ -9,7 +9,7 @@ export const getSigningDelegateWC =
       console.log(_signMsg);
 
       // Pre-sign Callback
-      preSignCb && preSignCb(); // TODO: Trigger modal to confirm pending txn?
+      preSignCb && preSignCb(tx); // TODO: Trigger modal to confirm pending txn?
 
       // Sign Txn
       const signObj = await wcClient.sendCustomRequest({
@@ -27,7 +27,7 @@ export const getSigningDelegateWC =
       const pubKey = crypto.getPublicKey(publicKey)
 
       // Post-sign Callback
-      postSignCb && postSignCb(); // TODO: Close modal once completed?
+      postSignCb && postSignCb(tx); // TODO: Close modal once completed?
       console.log("ending signer callback");
 
       return tx.addSignature(pubKey, bufferSig)

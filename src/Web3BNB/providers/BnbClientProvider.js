@@ -1,4 +1,10 @@
-import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import { BncClient } from "@binance-chain/javascript-sdk";
 import { getNetwork } from "../utils/network";
 import { useBbc, bbcUpdateBalances } from "..";
@@ -16,7 +22,36 @@ export const BnbClientProvider = ({ children }) => {
 
   const [client, setclient] = useState(undefined);
 
-  const setupClient = useCallback(() => {
+  const setupSigningDelegate = useCallback(() => {
+    const preSignCb = (tx) => {
+      console.log(
+        "TODO: update the frontend with a parsed txn to ensure its 100% correct (client might have received something different to what the UI sent)",
+        client
+      );
+      // **IMPORTANT** Update the front-end with a parsed version of the pre-signed txn to ensure what is being handed
+      // to the client matches what the UI sent. (This will resist bugs such as the one listed below in postSignCb && errCb)
+    };
+    const postSignCb = () => {
+      console.log("TODO: post-sign callback", client);
+    };
+    const errCb = (err) => {
+      console.log("TODO: error callback", err);
+    };
+    if (walletType === "BW") {
+      client.setSigningDelegate(
+        getSigningDelegateBW(preSignCb, postSignCb, errCb)
+      );
+      console.log("Signing delegate set to BW:", client);
+    } else if (walletType === "LEDGER") {
+    } else if (walletType === "WC") {
+      client.setSigningDelegate(
+        getSigningDelegateWC(preSignCb, postSignCb, errCb, wcClient)
+      );
+      console.log("Signing delegate set to BW:", client);
+    }
+  }, [client, walletType, wcClient]);
+
+  useEffect(() => {
     if (["bbc-mainnet", "bbc-testnet"].includes(chainId)) {
       const _client = new BncClient(getNetwork(chainId).rpcs[0]);
       _client.initChain();
@@ -31,51 +66,6 @@ export const BnbClientProvider = ({ children }) => {
       setclient(undefined);
     }
   }, [chainId]);
-
-  const setupSigningDelegate = useCallback(() => {
-    const preSignCb = () => {
-      console.log(
-        "TODO: update the frontend with a parsed txn to ensure its 100% correct (client might have received something different to what the UI sent)",
-        client
-      );
-      // **IMPORTANT** Update the front-end with a parsed version of the pre-signed txn to ensure what is being handed
-      // to the client matches what the UI sent. (This will resist bugs such as the one listed below in postSignCb && errCb)
-    };
-    const postSignCb = () => {
-      console.log("TODO: post-sign callback", client);
-      // ***IMPORTANT*** BncClient or BinanceWallet has a bug with multisend that exponentially increases the outputs
-      // on each successive repeat of the same txn. Wiping the client seems to be the only way of avoiding this
-      setupClient();
-      setupSigningDelegate();
-    };
-    const errCb = (err) => {
-      console.log("TODO: error callback", err);
-      // ***IMPORTANT*** BncClient or BinanceWallet has a bug with multisend that exponentially increases the outputs
-      // on each successive repeat of the same txn. Wiping the client seems to be the only way of avoiding this
-      setupClient();
-      setupSigningDelegate();
-    };
-    if (walletType === "BW") {
-      client.setSigningDelegate(
-        getSigningDelegateBW(preSignCb, postSignCb, errCb)
-      );
-      console.log("Signing delegate set to BW:", client);
-    } else if (walletType === "LEDGER") {
-      // ***IMPORTANT*** See above inside postSignCb && errCb. Dont use these callbacks when testing to find out if the
-      // bug is a BncClient issue or a BinanceWallet caching issue. Should help narrow down prior to locating specific issue
-    } else if (walletType === "WC") {
-      // ***IMPORTANT*** See above inside postSignCb && errCb. Dont use these callbacks when testing to find out if the
-      // bug is a BncClient issue or a BinanceWallet caching issue. Should help narrow down prior to locating specific issue
-      client.setSigningDelegate(
-        getSigningDelegateWC(preSignCb, postSignCb, errCb, wcClient)
-      );
-      console.log("Signing delegate set to BW:", client);
-    }
-  }, [client, setupClient, walletType, wcClient]);
-
-  useEffect(() => {
-    setupClient();
-  }, [chainId, setupClient]);
 
   useEffect(() => {
     setupSigningDelegate();

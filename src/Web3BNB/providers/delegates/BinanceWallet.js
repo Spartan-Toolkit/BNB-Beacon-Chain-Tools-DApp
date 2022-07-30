@@ -5,7 +5,7 @@ export const getSigningDelegateBW =
     try {
       console.log("beginning signer callback", tx, signMsg);
       // Pre-sign Callback
-      preSignCb && preSignCb();
+      preSignCb && preSignCb(tx);
 
       // Sign Txn BACKUP SIGN METHOD (Buggy UI for MultiSend)
       // const { pubKey, signature } = await window.BinanceChain?.bbcSignTx({
@@ -30,7 +30,7 @@ export const getSigningDelegateBW =
       }
 
       // Post-sign Callback
-      postSignCb && postSignCb();
+      postSignCb && postSignCb(tx);
 
       // Convert pubkey & add signature to tx for the client
       // const _pubKey = crypto.getPublicKey(pubKey); // BACKUP SIGN METHOD (Buggy UI for MultiSend)
