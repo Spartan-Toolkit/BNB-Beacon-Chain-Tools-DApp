@@ -244,7 +244,7 @@ const Transfer = () => {
       <ToastContainer
         className='p-3'
         position='top-end'
-        style={{ marginTop: "30px", zIndex: 1000 }}
+        style={{ marginTop: "30px" }}
       >
         <Toast
           onClose={() => setshowToast(false)}
