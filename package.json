@@ -2,6 +2,9 @@
   "name": "my-app",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=14.18.0"
+  },
   "dependencies": {
     "@binance-chain/javascript-sdk": "^4.2.0",
     "@craco/craco": "^6.4.5",
