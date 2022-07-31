@@ -26,7 +26,8 @@
     "react-scripts": "5.0.1",
     "stream-browserify": "^3.0.0",
     "util": "^0.12.4",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "webpack": "^5.74.0"
   },
   "scripts": {
     "start": "craco start",
