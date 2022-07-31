@@ -10,7 +10,7 @@ const webpack = require('webpack')
 module.exports = {
   webpack: {
     configure: {
-      // ignoreWarnings: [/Failed to parse source map/],
+      ignoreWarnings: [/Failed to parse source map/],
       resolve: {
         fallback: {
           util: require.resolve("util/"),
