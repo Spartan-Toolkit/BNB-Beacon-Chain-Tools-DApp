@@ -1,4 +1,4 @@
-const webpack = require('webpack')
+const webpack = require("webpack");
 
 /**
  * Fallbacks are required due to webpack 5 no longer supplying node polyfills by default
@@ -10,7 +10,7 @@ const webpack = require('webpack')
 module.exports = {
   webpack: {
     configure: {
-      ignoreWarnings: [/Failed to parse source map/],
+      ignoreWarnings: [/Failed to parse source map/, /Critical dependency: the request of a dependency is an expression/],
       resolve: {
         fallback: {
           util: require.resolve("util/"),
@@ -20,7 +20,7 @@ module.exports = {
       },
       plugins: [
         new webpack.ProvidePlugin({
-          Buffer: ['buffer', 'Buffer'],
+          Buffer: ["buffer", "Buffer"],
           process: "process/browser",
         }),
       ],
