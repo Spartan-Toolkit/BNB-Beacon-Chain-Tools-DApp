@@ -12,16 +12,50 @@ export const WCClientProvider = ({ children }) => {
   const dispatch = useDispatch();
 
   const [wcClient, setwcClient] = useState(undefined);
+  const [firstLoad, setfirstLoad] = useState(true);
+
+  const newConnector = () => {
+    const connector = new WalletConnect({
+      bridge: "https://wallet-bridge.binance.org", // Required
+      qrcodeModal: QRCodeModal,
+    });
+    // Beaconchain is not selectable in the TrustWallet app, this line is a workaround
+    connector.clientMeta.url = "https://www.binance.org";
+    return connector;
+  };
 
   useEffect(() => {
-    if (walletType === "WC") {
+    if (firstLoad && walletType === "WC") {
+      let prevSession = localStorage.getItem("walletconnect");
+      if (prevSession) {
+        console.log("Trying to restore previous WalletConnect session");
+        prevSession = JSON.parse(prevSession);
+        const connector = newConnector();
+        if (!connector.connected) {
+          connector.approveSession(1, connector.accounts); // Check if connection is already established
+          console.log("WalletConnect session updated");
+        }
+        console.log(connector);
+        setwcClient(connector);
+        console.log(
+          "WalletConnect session restored",
+          connector.accounts,
+          chainId
+        );
+        dispatch(bbcUpdateAddress(connector.accounts[0]));
+      }
+    }
+  }, [chainId, dispatch, firstLoad, walletType]);
+
+  useEffect(() => {
+    if (wcClient && !walletType) {
+      wcClient.killSession();
+      setwcClient(undefined);
+    }
+    if (!firstLoad && walletType === "WC" && !wcClient) {
       if (["bbc-mainnet", "bsc-mainnet", "bsc-testnet"].includes(chainId)) {
         // Create a connector
-        const connector = new WalletConnect({
-          bridge: "https://wallet-bridge.binance.org", // Required
-          qrcodeModal: QRCodeModal,
-        });
-        connector.clientMeta.url = "https://www.binance.org"; // Beaconchain is not selectable in the TrustWallet app, this line is a workaround
+        const connector = newConnector();
         if (!connector.connected) {
           connector.createSession(); // Check if connection is already established
           console.log("New WalletConnect session created");
@@ -34,10 +68,8 @@ export const WCClientProvider = ({ children }) => {
         );
       }
     }
-    return () => {
-      setwcClient(undefined); // wipe WC client on walletType change
-    };
-  }, [chainId, walletType]);
+    setfirstLoad(false);
+  }, [chainId, dispatch, firstLoad, walletType, wcClient]);
 
   useEffect(() => {
     if (wcClient) {
@@ -65,6 +97,8 @@ export const WCClientProvider = ({ children }) => {
           throw error;
         }
         console.log("WalletConnect disconnected");
+        window.localStorage.removeItem("walletconnect");
+        dispatch(bbcUpdateAddress(undefined));
       });
     }
 

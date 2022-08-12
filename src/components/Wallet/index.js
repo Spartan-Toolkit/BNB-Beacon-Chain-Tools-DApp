@@ -26,10 +26,11 @@ const Wallet = () => {
   const handleClose = () => setshowModal(false);
   const handleShow = () => setshowModal(true);
 
-  useEffect(() => {
+  const handleUpdateChainId = (id) => {
     setaddrState(false);
     dispatch(bbcClearWallet());
-  }, [dispatch, chainId]);
+    dispatch(bbcUpdateChainId(id));
+  };
 
   useEffect(() => {
     const checkAddrBW = async () => {
@@ -66,30 +67,28 @@ const Wallet = () => {
             <Button
               key={x.id}
               variant={chainId === x.id ? "primary" : "secondary"}
-              onClick={() => dispatch(bbcUpdateChainId(x.id))}
+              onClick={() => handleUpdateChainId(x.id)}
             >
               {x.name}
             </Button>
           ))}
-          {!walletType && (
-            <>
-              <h5>Select Wallet Type:</h5>
-              <Button
-                variant='secondary'
-                onClick={() => dispatch(bbcUpdateWalletType("BW"))}
-                disabled={!chainId}
-              >
-                Connect to Binance Wallet
-              </Button>
-              <Button
-                variant='secondary'
-                onClick={() => dispatch(bbcUpdateWalletType("WC"))}
-                disabled={!chainId || chainId === "bbc-testnet"}
-              >
-                Connect with WalletConnect
-              </Button>
-            </>
-          )}
+
+          <h5>Select Wallet Type:</h5>
+          <Button
+            variant='secondary'
+            onClick={() => dispatch(bbcUpdateWalletType("BW"))}
+            disabled={!chainId || !window.BinanceChain}
+          >
+            Connect to Binance Wallet
+          </Button>
+          <Button
+            variant='secondary'
+            onClick={() => dispatch(bbcUpdateWalletType("WC"))}
+            disabled={!chainId || chainId === "bbc-testnet"}
+          >
+            Connect with WalletConnect
+          </Button>
+
           {walletType === "BW" && (
             <>
               <h5>Select Binance Wallet Address:</h5>

@@ -56,7 +56,19 @@ export const getChainIdLS = () => {
   const lsVal = window.localStorage.getItem("sptk_chainId");
   console.log("ChainId lsValue = ", lsVal);
   if (lsVal) {
+    window.localStorage.setItem("sptk_chainId", lsVal);
     return lsVal;
   }
+  window.localStorage.setItem("sptk_chainId", networks[0].id);
   return networks[0].id;
+};
+
+export const getWalletTypeLS = () => {
+  const lsVal = window.localStorage.getItem("sptk_walletType");
+  console.log("WalletType lsValue = ", lsVal);
+  if (lsVal) {
+    window.localStorage.setItem("sptk_walletType", lsVal);
+    return lsVal;
+  }
+  return undefined;
 };

@@ -1,10 +1,10 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getChainIdLS } from "../utils/network";
+import { getChainIdLS, getWalletTypeLS } from "../utils/network";
 
 const initialState = {
   error: null,
   chainId: getChainIdLS(), // ie. "bbc-mainnet" || "bbc-testnet" || "bsc-mainnet" || "bsc-testnet"
-  walletType: undefined, // ie. "BW" || "MM" || "WC" --- (aka. BinanceWallet, MetaMask, WalletConnect)
+  walletType: getWalletTypeLS(), // ie. "BW" || "MM" || "WC" --- (aka. BinanceWallet, MetaMask, WalletConnect)
   addrArray: undefined, // Array of all addresses derived from selected wallet
   address: undefined, // User's selected wallet address
   balances: undefined, // User's array of each token with a balance held

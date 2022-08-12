@@ -27,6 +27,7 @@ export const bbcUpdateChainId = (chainId) => async (dispatch) => {
 /** Update Wallet Type */
 export const bbcUpdateWalletType =
   (walletType) => async (dispatch, getState) => {
+    dispatch(updateWalletType(undefined));
     const { chainId } = getState().bbc;
     const network = getNetwork(chainId);
     if (getNetwork(chainId)) {
@@ -88,9 +89,12 @@ export const bbcUpdateBalances = (balances) => async (dispatch) => {
 };
 
 /** Update Selected Wallet */
-export const bbcClearWallet = (walletAddr) => async (dispatch) => {
+export const bbcClearWallet = (walletAddr) => async (dispatch, getState) => {
+  const { walletType } = getState().bbc;
   try {
-    // Check old code below and pad this out
+    if (walletType === "WC") {
+      window.localStorage.removeItem("walletconnect");
+    }
     dispatch(clearWallet(walletAddr));
   } catch (error) {
     dispatch(updateError(error.reason));

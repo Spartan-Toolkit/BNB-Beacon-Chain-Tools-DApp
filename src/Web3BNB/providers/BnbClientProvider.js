@@ -37,17 +37,19 @@ export const BnbClientProvider = ({ children }) => {
     const errCb = (err) => {
       console.log("TODO: error callback", err);
     };
-    if (walletType === "BW") {
-      client.setSigningDelegate(
-        getSigningDelegateBW(preSignCb, postSignCb, errCb)
-      );
-      console.log("Signing delegate set to BW:", client);
-    } else if (walletType === "LEDGER") {
-    } else if (walletType === "WC") {
-      client.setSigningDelegate(
-        getSigningDelegateWC(preSignCb, postSignCb, errCb, wcClient)
-      );
-      console.log("Signing delegate set to BW:", client);
+    if (wcClient) {
+      if (walletType === "BW") {
+        client.setSigningDelegate(
+          getSigningDelegateBW(preSignCb, postSignCb, errCb)
+        );
+        console.log("Signing delegate set to BW:", client);
+      } else if (walletType === "LEDGER") {
+      } else if (walletType === "WC") {
+        client.setSigningDelegate(
+          getSigningDelegateWC(preSignCb, postSignCb, errCb, wcClient)
+        );
+        console.log("Signing delegate set to WC:", client);
+      }
     }
   }, [client, walletType, wcClient]);
 
