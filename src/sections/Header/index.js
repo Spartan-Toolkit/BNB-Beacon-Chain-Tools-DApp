@@ -9,26 +9,31 @@ import { routes } from "../../routes";
 
 import Wallet from "../../components/Wallet";
 import { Link } from "react-router-dom";
+import { ReactComponent as Logo } from "../../assets/icon/toolbox.svg";
 
 const Header = () => {
   const [showMenu, setshowMenu] = useState(false);
 
   return (
     <Row className={styles.header}>
-      <Col>
-        <div>*LOGO*</div>
-        <div className='d-none d-sm-block'>
-          Beacon Tools <small>by Spartan Toolkit</small>
-        </div>
+      <Col xs='auto'>
+        <Logo height='30' width='30' />
+        <h5 className='d-none d-sm-inline-block ms-2 align-middle mb-0'>
+          BNBChain Toolkit
+        </h5>
       </Col>
       <Col className='text-center d-none d-md-block'>
         {routes.map((route) => (
-          <Link key={route.route} to={route.route} className='mx-1'>
+          <Link
+            key={route.route}
+            to={route.route}
+            className='mx-1 align-middle'
+          >
             {route.label}
           </Link>
         ))}
       </Col>
-      <Col className='text-center d-block d-md-none'>
+      <Col className='text-start d-block d-md-none'>
         <Button size='sm' onClick={() => setshowMenu(true)}>
           MENU
         </Button>
@@ -50,7 +55,7 @@ const Header = () => {
           </Offcanvas.Body>
         </Offcanvas>
       </Col>
-      <Col className='text-end'>
+      <Col xs='auto' className='text-end'>
         <Wallet />
       </Col>
     </Row>

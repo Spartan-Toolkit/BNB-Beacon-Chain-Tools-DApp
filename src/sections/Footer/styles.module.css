@@ -1,9 +1,11 @@
 .footer {
-  height: 25px;
+  height: 35px;
   margin: 0;
   z-index: 1000;
   bottom: 0;
   position: fixed;
   width: 100vw;
   align-content: center;
+  background-color: rgb(212, 212, 212);
+  border-top: 1px solid rgba(0, 0, 0, 0.178);
 }
